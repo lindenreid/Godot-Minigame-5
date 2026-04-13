@@ -1,0 +1,157 @@
+[gd_scene load_steps=18 format=3 uid="uid://d2xf4wuh2u4t6"]
+
+[ext_resource type="PackedScene" uid="uid://c3ixqkc6k13yi" path="res://scenes/vehicle_controller.tscn" id="1_lup1j"]
+[ext_resource type="PackedScene" uid="uid://fo6kt54q87tf" path="res://scenes/arcade_car.tscn" id="2_oiv4q"]
+[ext_resource type="PackedScene" uid="uid://b2hlchrj4h2b7" path="res://scenes/engine_sound.tscn" id="4_r1tsm"]
+[ext_resource type="Script" uid="uid://d0eom7tdwlrel" path="res://scripts/gui.gd" id="5_haswc"]
+[ext_resource type="Script" uid="uid://dlegslxxeaju2" path="res://scripts/time_ui.gd" id="5_mgdar"]
+[ext_resource type="Script" uid="uid://be106081jox2g" path="res://scripts/GameOverUI.gd" id="6_is6ak"]
+[ext_resource type="Script" uid="uid://dh62eiedykw0x" path="res://scripts/camera.gd" id="6_vitqy"]
+[ext_resource type="Script" uid="uid://d04sg53tcoecn" path="res://scripts/debug.gd" id="7_vstgd"]
+[ext_resource type="Script" uid="uid://cyva1e1qvfmmi" path="res://scripts/debug_ui.gd" id="8_1up8y"]
+[ext_resource type="PackedScene" uid="uid://d1erbx2oq3d43" path="res://scenes/ramp.tscn" id="11_yeqkk"]
+[ext_resource type="PackedScene" uid="uid://dgohjwo5nix6w" path="res://scenes/road.tscn" id="12_shk6o"]
+[ext_resource type="PackedScene" uid="uid://d1ndnntjr4qhg" path="res://scenes/ground.tscn" id="13_qr4q7"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_mgdar"]
+font_size = 40
+font_color = Color(0, 0, 0, 1)
+outline_size = 2
+
+[sub_resource type="LabelSettings" id="LabelSettings_is6ak"]
+font_size = 30
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_smio7"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_fr4m5"]
+sky_material = SubResource("ProceduralSkyMaterial_smio7")
+
+[sub_resource type="Environment" id="Environment_ernvw"]
+background_mode = 2
+sky = SubResource("Sky_fr4m5")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="ArcadeDemo" type="Node3D"]
+
+[node name="Player" parent="." node_paths=PackedStringArray("vehicle_node") instance=ExtResource("1_lup1j")]
+unique_name_in_owner = true
+vehicle_node = NodePath("VehicleRigidBody")
+
+[node name="VehicleRigidBody" parent="Player" instance=ExtResource("2_oiv4q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.926611, 0)
+center_of_mass_mode = 1
+linear_damp_mode = 1
+angular_damp_mode = 1
+
+[node name="EngineSound" parent="Player/VehicleRigidBody" node_paths=PackedStringArray("vehicle") instance=ExtResource("4_r1tsm")]
+max_db = -24.0
+vehicle = NodePath("..")
+
+[node name="GUI" type="Control" parent="." node_paths=PackedStringArray("vehicle")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_haswc")
+vehicle = NodePath("../Player/VehicleRigidBody")
+
+[node name="CarInfoUI" type="VBoxContainer" parent="GUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -594.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Speed" type="Label" parent="GUI/CarInfoUI"]
+layout_mode = 2
+
+[node name="RPM" type="Label" parent="GUI/CarInfoUI"]
+layout_mode = 2
+
+[node name="Gear" type="Label" parent="GUI/CarInfoUI"]
+layout_mode = 2
+
+[node name="TimeUI" type="VBoxContainer" parent="GUI"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 563.0
+offset_right = 1149.0
+offset_bottom = 645.0
+script = ExtResource("5_mgdar")
+
+[node name="TimeText" type="Label" parent="GUI/TimeUI"]
+layout_mode = 2
+text = "time: 00:00"
+label_settings = SubResource("LabelSettings_mgdar")
+
+[node name="ConesText" type="Label" parent="GUI/TimeUI"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_mgdar")
+
+[node name="GameOverUI" type="PanelContainer" parent="GUI"]
+visible = false
+layout_mode = 0
+offset_left = 187.0
+offset_top = 177.0
+offset_right = 955.0
+offset_bottom = 500.0
+script = ExtResource("6_is6ak")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GUI/GameOverUI"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="GUI/GameOverUI/VBoxContainer"]
+layout_mode = 2
+text = "RACE FINISHED!"
+label_settings = SubResource("LabelSettings_is6ak")
+horizontal_alignment = 1
+
+[node name="FinalTimeText" type="Label" parent="GUI/GameOverUI/VBoxContainer"]
+layout_mode = 2
+text = "final time: 00.00"
+label_settings = SubResource("LabelSettings_is6ak")
+horizontal_alignment = 1
+
+[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("follow_this")]
+transform = Transform3D(1, 0, 0, 0, 0.989776, 0.142629, 0, -0.142629, 0.989776, 4.05282, 1.58316, 5.80061)
+script = ExtResource("6_vitqy")
+follow_distance = 3
+follow_this = NodePath("../Player/VehicleRigidBody")
+
+[node name="Debug" type="Node" parent="." node_paths=PackedStringArray("vehicle")]
+script = ExtResource("7_vstgd")
+vehicle = NodePath("../Player/VehicleRigidBody")
+
+[node name="DebugUI" type="Control" parent="Debug"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("8_1up8y")
+metadata/_edit_use_anchors_ = true
+
+[node name="Track" type="Node3D" parent="."]
+
+[node name="Ramp" parent="Track" instance=ExtResource("11_yeqkk")]
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 366.196, 0.316678, 79.3629)
+
+[node name="Road" parent="Track" instance=ExtResource("12_shk6o")]
+
+[node name="Ground" parent="Track" instance=ExtResource("13_qr4q7")]
+
+[node name="LightingSettings" type="WorldEnvironment" parent="Track"]
+environment = SubResource("Environment_ernvw")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Track"]
+transform = Transform3D(0.527563, -0.46986827, 0.7077437, -1.33511e-08, 0.83311415, 0.5531012, -0.849516, -0.2917957, 0.43952015, 0, 2.26991, 0)
